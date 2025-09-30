@@ -9,7 +9,7 @@ class Calculator:
             "/": lambda a, b: a / b,
         }
         self.precedence = {
-            "+": 3,
+            "+": 1,
             "-": 1,
             "*": 2,
             "/": 2,
@@ -59,3 +59,9 @@ class Calculator:
         b = values.pop()
         a = values.pop()
         values.append(self.operators[operator](a, b))
+
+if __name__ == "__main__":
+    calculator = Calculator()
+    expression = "3 + 7 * 2"
+    result = calculator.evaluate(expression)
+    print(result)

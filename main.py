@@ -9,7 +9,7 @@ from functions.call_function import call_function
 
 def generate_content(client, messages, verbose):
     
-    for attmpt in range(5):
+    for attempt in range(5):
         try:
             response = client.models.generate_content(
                 model="gemini-2.0-flash-001",
