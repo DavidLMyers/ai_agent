@@ -15,7 +15,7 @@ def get_file_content(working_directory, file_path):
             content = f.read()
             if len(content) > 10000:
                 content = content[:10000] + f'[...File "{file_path}" truncated at 10000 characters]'
-            print(content)
+            return content
     except Exception as e:
         print(f"Error: {e}")
 

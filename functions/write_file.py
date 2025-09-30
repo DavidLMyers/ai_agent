@@ -12,7 +12,7 @@ def write_file(working_directory, file_path, content):
             raise Exception(f'Cannot write to "{file_path}" as it is outside the permitted working directory')
         with open(full_path, 'w') as f:
             f.write(content)
-        print(f'Successfully wrote to "{file_path}" ({len(content)} characters written)')
+        return f'Successfully wrote to "{file_path}" ({len(content)} characters written)'
     except Exception as e:
         print(f"Error: {e}")
 

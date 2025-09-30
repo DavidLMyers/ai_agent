@@ -8,13 +8,29 @@ from prompts import system_prompt
 from functions.call_function import call_function
 
 def generate_content(client, messages, verbose):
-    response = client.models.generate_content(
-        model="gemini-2.0-flash-001",
-        contents=messages,
-        config=types.GenerateContentConfig(
-            tools=[available_functions], system_instruction=system_prompt
-        ),
-    )
+    
+    for attmpt in range(5):
+        try:
+            response = client.models.generate_content(
+                model="gemini-2.0-flash-001",
+                contents=messages,
+                config=types.GenerateContentConfig(
+                    tools=[available_functions], system_instruction=system_prompt
+                ),
+            )
+            break
+        except Exception as e:
+            if attempt == 4:
+                print(f"Error: {e}")
+                raise Exception("Max retries exceeded")
+            
+            delay = 2 * 2**attempt
+            print(f"Error: {e}. Attempt {(attempt + 2)}/{5}. Retrying in {delay} seconds...")
+    
+    if response.candidates:
+        for candidate in response.candidates:
+            messages.append(candidate.content)
+            
     if verbose:
         print("Prompt tokens:", response.usage_metadata.prompt_token_count)
         print("Response tokens:", response.usage_metadata.candidates_token_count)
@@ -24,10 +40,11 @@ def generate_content(client, messages, verbose):
 
     for function_call_part in response.function_calls:
         function_response = call_function(function_call_part, verbose)
-        if function_response.parts[0].function_response.response:
-            print(f"-> {function_response.parts[0].function_response.response}")
-        else:
+        #messages.append(types.Content(role="user", parts=function_response))
+        messages.append(function_response)
+        if not function_response.parts[0].function_response.response:
             raise Exception("No function response received")
+        
 
 
 
@@ -59,7 +76,15 @@ def main():
         types.Content(role="user", parts=[types.Part(text=user_prompt)]),
     ]
 
-    generate_content(client, messages, verbose)
+    try:
+        for i in range(20):
+            result = generate_content(client, messages, verbose)
+            if result:
+                print("\nResult:\n", result)
+                break
+    except Exception as e:
+        print("Error:", e)
+        sys.exit(1)
     
 
 
